@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.env
+access-token.json
+curl-acces-token.txt
+get_token.sh
+old
+old2

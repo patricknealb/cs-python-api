@@ -106,3 +106,19 @@ async def get_messages(
         select(Message).offset(skip).limit(limit)
     )
     return result.scalars().all()
+
+
+@router.get("/search/", response_model=List[MessageResponse])
+async def search_messages(
+    q: str = "",
+    skip: int = 0,
+    limit: int = 100,
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Message)
+        .where(Message.message_text.ilike(f"%{q}%"))
+        .offset(skip)
+        .limit(limit)
+    )
+    return result.scalars().all()

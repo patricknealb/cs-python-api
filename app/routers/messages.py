@@ -99,11 +99,12 @@ async def get_messages(
     skip: int = 0,
     limit: int = 100,
     db: AsyncSession = Depends(get_db),
-    #user: dict = Depends(get_current_user)  #disable to test without security
 ):
-    """Get all messages with pagination."""
     result = await db.execute(
-        select(Message).offset(skip).limit(limit)
+        select(Message)
+        .where(Message.published == True)
+        .offset(skip)
+        .limit(limit)
     )
     return result.scalars().all()
 

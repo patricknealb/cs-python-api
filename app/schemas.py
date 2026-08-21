@@ -16,6 +16,7 @@ class MessageResponse(BaseModel):
     message_id: str
     message_text: str
     message_category_id: int
+    published: bool
     row_created_at: datetime
     row_updated_at: Optional[datetime] = None
 

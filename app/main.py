@@ -6,12 +6,8 @@ app = FastAPI(title="CS API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://cs-website-b39g.onrender.com",  # your exact Render URL
-        "http://localhost:3000",  # for local testing
-        "http://localhost:8000",
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )

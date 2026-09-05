@@ -41,40 +41,42 @@ async def submit_message(
         await db.commit()
     except Exception as e:
         await db.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
-
+        raise HTTPException(status_code=500, detail=f"DB error: {str(e)}")
 
     # Send verification email
     verify_url = f"{settings.verify_base_url}/verify/{token}"
 
-    resend.Emails.send({
-        "from": "Common Sense <onboarding@resend.dev>",
-        "to": payload.email,
-        "subject": "Verify your Common Sense message submission",
-        "html": f"""
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background: #2c3e50; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
-                <h1 style="color: #e67e22; margin: 0; font-size: 32px;">CS</h1>
-                <p style="color: #ffffff; margin: 8px 0 0 0;">Common Sense</p>
-            </div>
-            <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px;">
-                <p style="color: #2c3e50; font-size: 16px;">Thanks for submitting a Common Sense message!</p>
-                <p style="color: #2c3e50; font-size: 16px;">Click the link below to verify your email. Your message will be reviewed before publishing.</p>
-                <div style="text-align: center; margin: 30px 0;">
-                    <a href="{verify_url}"
-                       style="background: #e67e22; color: white; padding: 14px 32px; border-radius: 6px;
-                              text-decoration: none; font-weight: bold; font-size: 16px;">
-                        Verify My Submission
-                    </a>
+    try:
+        resend.Emails.send({
+            "from": "Common Sense <onboarding@resend.dev>",
+            "to": payload.email,
+            "subject": "Verify your Common Sense message submission",
+            "html": f"""
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="background: #2c3e50; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+                    <h1 style="color: #e67e22; margin: 0; font-size: 32px;">CS</h1>
+                    <p style="color: #ffffff; margin: 8px 0 0 0;">Common Sense</p>
                 </div>
-                <p style="color: #7f8c8d; font-size: 13px;">
-                    Your message: <em>"{payload.message_text[:100]}{'...' if len(payload.message_text) > 100 else ''}"</em>
-                </p>
-                <p style="color: #7f8c8d; font-size: 12px;">If you didn't submit a message, you can ignore this email.</p>
+                <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px;">
+                    <p style="color: #2c3e50; font-size: 16px;">Thanks for submitting a Common Sense message!</p>
+                    <p style="color: #2c3e50; font-size: 16px;">Click the link below to verify your email. Your message will be reviewed before publishing.</p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="{verify_url}"
+                           style="background: #e67e22; color: white; padding: 14px 32px; border-radius: 6px;
+                                  text-decoration: none; font-weight: bold; font-size: 16px;">
+                            Verify My Submission
+                        </a>
+                    </div>
+                    <p style="color: #7f8c8d; font-size: 13px;">
+                        Your message: <em>"{payload.message_text[:100]}{'...' if len(payload.message_text) > 100 else ''}"</em>
+                    </p>
+                    <p style="color: #7f8c8d; font-size: 12px;">If you didn't submit a message, you can ignore this email.</p>
+                </div>
             </div>
-        </div>
-        """
-    })
+            """
+        })
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Email error: {str(e)}")
 
     return {"message": "Submission received. Please check your email to verify."}
 

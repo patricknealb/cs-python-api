@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import messages
+from app.routers import messages, submit
 
 app = FastAPI(title="CS API")
 
@@ -13,6 +13,7 @@ app.add_middleware(
 )
 
 app.include_router(messages.router)
+app.include_router(submit.router)
 
 @app.get("/health")
 async def health():

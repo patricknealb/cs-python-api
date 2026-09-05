@@ -8,7 +8,7 @@ import uuid
 import resend
 
 from app.database import get_db
-from app.models import Message, MessageCategory
+from app.models import Message
 from app.config import settings
 
 router = APIRouter(tags=["submit"])
@@ -26,20 +26,23 @@ async def submit_message(
     payload: MessageSubmission,
     db: AsyncSession = Depends(get_db)
 ):
-    # Generate a unique token for email verification
     token = str(uuid.uuid4())
     message_id = str(uuid.uuid4())
 
-    # Save message as unpublished with token stored in message_id prefix
-    # We store token in a separate field by reusing message_id format: token|message_id
     message = Message(
         message_id=f"{token}|{message_id}",
         message_text=payload.message_text,
-        message_category_id=1,  # default category
+        message_category_id=1,
         published=False
     )
     db.add(message)
-    await db.commit()
+
+    try:
+        await db.commit()
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
 
     # Send verification email
     verify_url = f"{settings.verify_base_url}/verify/{token}"

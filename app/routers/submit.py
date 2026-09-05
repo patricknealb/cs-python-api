@@ -26,11 +26,11 @@ async def submit_message(
     payload: MessageSubmission,
     db: AsyncSession = Depends(get_db)
 ):
+    # Use a single UUID as the token/message_id
     token = str(uuid.uuid4())
-    message_id = str(uuid.uuid4())
 
     message = Message(
-        message_id=f"{token}|{message_id}",
+        message_id=token,  # just the token, fits in VARCHAR(64)
         message_text=payload.message_text,
         message_category_id=1,
         published=False
@@ -86,9 +86,9 @@ async def verify_message(
     token: str,
     db: AsyncSession = Depends(get_db)
 ):
-    # Find message with this token
+    # Find message with this token as message_id
     result = await db.execute(
-        select(Message).where(Message.message_id.like(f"{token}|%"))
+        select(Message).where(Message.message_id == token)
     )
     message = result.scalar_one_or_none()
 
@@ -103,8 +103,7 @@ async def verify_message(
             </html>
         """, status_code=404)
 
-    # Clean up the message_id to remove the token prefix
-    message.message_id = message.message_id.split("|")[1]
+    # Mark as verified by updating the timestamp
     message.row_updated_at = datetime.now(timezone.utc)
     await db.commit()
 
@@ -115,7 +114,7 @@ async def verify_message(
             <h2 style="color:#ffffff;">Thank you!</h2>
             <p style="color:#bdc3c7;">Your message has been verified and is now pending review.</p>
             <p style="color:#bdc3c7;">We'll publish it once it's been approved.</p>
-            <a href="/" style="color:#e67e22;">← Back to Common Sense</a>
+            <a href="https://cs-website-b39g.onrender.com" style="color:#e67e22;">← Back to Common Sense</a>
         </body>
         </html>
     """)

@@ -8,7 +8,7 @@ import uuid
 import resend
 
 from app.database import get_db
-from app.models import Message
+from app.models import Message, MessageCategory
 from app.config import settings
 
 router = APIRouter(tags=["submit"])
@@ -45,7 +45,7 @@ async def submit_message(
     verify_url = f"{settings.verify_base_url}/verify/{token}"
 
     resend.Emails.send({
-        "from": "Common Sense <noreply@yourdomain.com>",
+        "from": "Common Sense <onboarding@resend.dev>",
         "to": payload.email,
         "subject": "Verify your Common Sense message submission",
         "html": f"""

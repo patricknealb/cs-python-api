@@ -54,8 +54,7 @@ async def submit_message(
             "html": f"""
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
                 <div style="background: #2c3e50; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
-                    <h1 style="color: #e67e22; margin: 0; font-size: 32px;">CS</h1>
-                    <p style="color: #ffffff; margin: 8px 0 0 0;">Common Sense</p>
+                    <h1 style="color: #e67e22; margin: 0; font-size: 32px;">Common Sense</h1>
                 </div>
                 <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px;">
                     <p style="color: #2c3e50; font-size: 16px;">Thanks for submitting a Common Sense message!</p>
@@ -67,7 +66,7 @@ async def submit_message(
                             Verify My Submission
                         </a>
                     </div>
-                    <p style="color: #7f8c8d; font-size: 13px;">
+                    <p style="color: #000000; font-size: 16px;">
                         Your message: <em>"{payload.message_text[:100]}{'...' if len(payload.message_text) > 100 else ''}"</em>
                     </p>
                     <p style="color: #7f8c8d; font-size: 12px;">If you didn't submit a message, you can ignore this email.</p>

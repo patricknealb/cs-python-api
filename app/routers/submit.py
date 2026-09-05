@@ -66,7 +66,7 @@ async def submit_message(
                             Verify My Submission
                         </a>
                     </div>
-                    <p style="color: #000000; font-size: 16px;">
+                    <p style="color: #2c3e50; font-size: 16px;">
                         Your message: <em>"{payload.message_text[:100]}{'...' if len(payload.message_text) > 100 else ''}"</em>
                     </p>
                     <p style="color: #7f8c8d; font-size: 12px;">If you didn't submit a message, you can ignore this email.</p>

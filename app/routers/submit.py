@@ -26,14 +26,15 @@ async def submit_message(
     payload: MessageSubmission,
     db: AsyncSession = Depends(get_db)
 ):
-    # Use a single UUID as the token/message_id
     token = str(uuid.uuid4())
 
     message = Message(
-        message_id=token,  # just the token, fits in VARCHAR(64)
+        message_id=token,
         message_text=payload.message_text,
         message_category_id=1,
-        published=False
+        published=False,
+        external=True,        # submitted via web form
+        email_verified=False  # not yet verified
     )
     db.add(message)
 
@@ -43,7 +44,6 @@ async def submit_message(
         await db.rollback()
         raise HTTPException(status_code=500, detail=f"DB error: {str(e)}")
 
-    # Send verification email
     verify_url = f"{settings.verify_base_url}/verify/{token}"
 
     try:
@@ -66,7 +66,7 @@ async def submit_message(
                             Verify My Submission
                         </a>
                     </div>
-                    <p style="color: #2c3e50; font-size: 16px;">
+                    <p style="color: #000000; font-size: 16px;">
                         Your message: <em>"{payload.message_text[:100]}{'...' if len(payload.message_text) > 100 else ''}"</em>
                     </p>
                     <p style="color: #7f8c8d; font-size: 12px;">If you didn't submit a message, you can ignore this email.</p>
@@ -85,7 +85,6 @@ async def verify_message(
     token: str,
     db: AsyncSession = Depends(get_db)
 ):
-    # Find message with this token as message_id
     result = await db.execute(
         select(Message).where(Message.message_id == token)
     )
@@ -95,21 +94,22 @@ async def verify_message(
         return HTMLResponse(content="""
             <html>
             <body style="font-family:Arial; text-align:center; padding:60px; background:#2c3e50; color:white;">
-                <h1 style="color:#e67e22;">CS</h1>
+                <h1 style="color:#e67e22;">Common Sense</h1>
                 <h2>Invalid or expired link</h2>
                 <p>This verification link is invalid or has already been used.</p>
             </body>
             </html>
         """, status_code=404)
 
-    # Mark as verified by updating the timestamp
+    # Set email_verified to True
+    message.email_verified = True
     message.row_updated_at = datetime.now(timezone.utc)
     await db.commit()
 
     return HTMLResponse(content="""
         <html>
         <body style="font-family:Arial; text-align:center; padding:60px; background:#2c3e50; color:white;">
-            <h1 style="color:#e67e22;">CS</h1>
+            <h1 style="color:#e67e22;">Common Sense</h1>
             <h2 style="color:#ffffff;">Thank you!</h2>
             <p style="color:#bdc3c7;">Your message has been verified and is now pending review.</p>
             <p style="color:#bdc3c7;">We'll publish it once it's been approved.</p>

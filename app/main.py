@@ -7,9 +7,9 @@ app = FastAPI(title="CS API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "*",
         "https://common-sense.cloud",
         "https://www.common-sense.cloud",
+        "https://cs-website-b39g.onrender.com",
     ],
     allow_credentials=False,
     allow_methods=["*"],

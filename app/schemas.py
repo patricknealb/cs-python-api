@@ -17,6 +17,7 @@ class MessageResponse(BaseModel):
     message_text: str
     message_category_id: int
     published: bool
+    favourite_count: int
     row_created_at: datetime
     row_updated_at: Optional[datetime] = None
 

@@ -12,5 +12,6 @@ class Message(Base):
     published = Column(Boolean, nullable=False, default=False)
     external = Column(Boolean, nullable=False, default=False)
     email_verified = Column(Boolean, nullable=False, default=False)
+    favourite_count = Column(Integer, nullable=False, default=0)
     row_created_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)
     row_updated_at = Column(TIMESTAMP(timezone=True), nullable=True)

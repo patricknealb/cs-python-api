@@ -123,3 +123,26 @@ async def search_messages(
         .limit(limit)
     )
     return result.scalars().all()
+
+
+@router.post("/{message_id}/favourite", response_model=MessageResponse)
+async def favourite_message(
+    message_id: str,
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Message).where(Message.message_id == message_id)
+    )
+    message = result.scalar_one_or_none()
+
+    if not message:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Message '{message_id}' not found"
+        )
+
+    message.favourite_count += 1
+    message.row_updated_at = datetime.now(timezone.utc)
+    await db.commit()
+    await db.refresh(message)
+    return message
